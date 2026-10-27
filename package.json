@@ -1,0 +1,21 @@
+{
+  "name": "meteo-classic",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://app.ometeo.pl/",
+  "repository": "github:tko-ventures/meteo-classic",
+  "description": "Meteogram UM 4 km w układzie starego meteo.pl, rysowany z bieżących danych ICM UW",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node test/api-test.mjs /tmp/meteogram-test.png",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@expo-google-fonts/arimo": "0.4.3",
+    "@napi-rs/canvas": "0.1.65"
+  }
+}

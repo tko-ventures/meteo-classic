@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meteogram klasyczny</title>
+  <meta name="description" content="Meteogram UM 4 km w układzie starego meteo.pl, rysowany z bieżących danych ICM UW.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23000080'/%3E%3Cpath d='M5 21 L11 13 L16 17 L21 9 L27 15' stroke='%23FFB400' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <!-- Vercel Web Analytics (odsłony) -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    :root {
+      --bg: #FFFBF0;
+      --panel: #FFFFFF;
+      --ink: #1A1A1A;
+      --muted: #5B5B66;
+      --navy: #000080;
+      --line: #D9D3C3;
+      --accent: #FFB400;
+      --err: #B00020;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.45 Arial, "Liberation Sans", Helvetica, sans-serif;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+    .wrap { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+    .top { display: flex; align-items: baseline; gap: 12px; padding: 14px 0 6px; flex-wrap: wrap; }
+    h1 { margin: 0; font-size: 18px; color: var(--navy); letter-spacing: .2px; }
+    .tag { color: var(--muted); font-size: 13px; }
+    form.search { display: flex; gap: 8px; padding: 6px 0 12px; flex-wrap: wrap; position: relative; }
+    input[type=text] {
+      flex: 1 1 320px; min-width: 0; padding: 7px 10px; font: inherit;
+      border: 1px solid #B9B2A0; border-radius: 3px; background: #fff;
+    }
+    input[type=text]:focus, select:focus, button:focus-visible { outline: 2px solid var(--navy); outline-offset: 1px; }
+    button, select {
+      font: inherit; padding: 6px 12px; border-radius: 3px; border: 1px solid #8E8E9C;
+      background: #F4F4F8; color: var(--ink); cursor: pointer;
+    }
+    button.primary { background: var(--navy); border-color: var(--navy); color: #fff; }
+    button:disabled { opacity: .55; cursor: default; }
+    .results {
+      position: absolute; top: 44px; left: 0; z-index: 5; width: min(560px, 100%);
+      background: #fff; border: 1px solid #B9B2A0; border-radius: 3px; box-shadow: 0 6px 18px rgba(0,0,0,.12);
+      list-style: none; margin: 0; padding: 4px 0;
+    }
+    .results li button {
+      display: block; width: 100%; text-align: left; border: 0; background: none; padding: 6px 10px; border-radius: 0;
+    }
+    .results li button:hover, .results li button:focus { background: #EEF0FA; }
+    .results small { color: var(--muted); }
+    .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 10px 0; }
+    .bar label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+    .spacer { flex: 1; }
+    .status { min-height: 20px; padding: 2px 0 10px; color: var(--muted); }
+    .status b { color: var(--ink); }
+    .status.err { color: var(--err); }
+    .stage {
+      overflow-x: auto; background: var(--panel); border: 1px solid var(--line);
+      padding: 10px; border-radius: 3px; min-height: 120px;
+    }
+    .stage img { display: block; margin: 0 auto; image-rendering: auto; }
+    .stage .placeholder { color: var(--muted); padding: 40px 8px; text-align: center; }
+    .link { display: none; gap: 8px; padding: 10px 0 0; flex-wrap: wrap; align-items: center; }
+    .link.show { display: flex; }
+    .link input { flex: 1 1 360px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+    footer { color: var(--muted); font-size: 12.5px; padding: 18px 0 28px; }
+    footer a { color: var(--navy); }
+    @media (max-width: 640px) {
+      .spacer { display: none; }
+      .bar { gap: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="top">
+        <h1>Meteogram klasyczny</h1>
+        <span class="tag">UM 4 km w układzie starego meteo.pl · bieżące dane ICM UW</span>
+      </div>
+      <form class="search" id="search" autocomplete="off">
+        <input type="text" id="q" name="q" aria-label="Miejscowość lub współrzędne"
+               placeholder="Miejscowość, współrzędne (51.22, 18.57) albo link z meteo.pl">
+        <button class="primary" type="submit">Pokaż</button>
+        <ul class="results" id="results" hidden></ul>
+      </form>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="bar">
+      <label>Model
+        <select id="model">
+          <option value="um4_60">UM 4 km · 60 h</option>
+          <option value="um4_120">UM 4 km · 120 h</option>
+        </select>
+      </label>
+      <label>Przebieg
+        <select id="run"><option value="">najnowszy</option></select>
+      </label>
+      <label><input type="checkbox" id="legend" checked> legenda</label>
+      <span class="spacer"></span>
+      <label>PNG
+        <select id="scale" aria-label="Skala pliku PNG">
+          <option value="1">1× (jak dawniej)</option>
+          <option value="2">2× (ostrzejszy)</option>
+        </select>
+      </label>
+      <button type="button" id="download" disabled>Pobierz PNG</button>
+      <button type="button" id="share" disabled>Link do obrazka</button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="stage" id="stage"><div class="placeholder">Wpisz miejscowość albo współrzędne.</div></div>
+    <div class="link" id="linkbox">
+      <input type="text" id="linkurl" readonly aria-label="Stały link do obrazka PNG">
+      <button type="button" id="copy">Kopiuj</button>
+      <a id="open" href="#" target="_blank" rel="noopener">otwórz</a>
+    </div>
+  </main>
+
+  <footer class="wrap">
+    Dane: model UM 4 km, <a href="https://www.meteo.pl" target="_blank" rel="noopener">ICM Uniwersytet Warszawski (meteo.pl)</a>.
+    Nieoficjalna wizualizacja w układzie dawnego meteogramu; korzysta z publicznego, nieudokumentowanego API nowej strony,
+    więc może przestać działać, jeśli ICM je zmieni. Wyszukiwanie miejsc: © OpenStreetMap / Nominatim.
+  </footer>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
