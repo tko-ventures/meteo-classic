@@ -1,16 +1,19 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "regions": ["fra1"],
-  "functions": {
-    "api/meteogram.js": {
-      "includeFiles": "node_modules/@expo-google-fonts/arimo/{package.json,400Regular/*.ttf,700Bold/*.ttf}",
-      "maxDuration": 20
-    }
-  },
-  "rewrites": [
-    { "source": "/meteogram.png", "destination": "/api/meteogram" },
-    { "source": "/meteogram/:coords([^/]+)\\.png", "destination": "/api/meteogram?coords=:coords" },
-    { "source": "/meteogram/:coords([^/]+)", "destination": "/index.html" },
-    { "source": "/meteogramy", "destination": "/index.html" }
-  ]
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"regions": ["fra1"],
+	"functions": {
+		"api/meteogram.js": {
+			"includeFiles": "node_modules/@expo-google-fonts/arimo/{package.json,400Regular/*.ttf,700Bold/*.ttf}",
+			"maxDuration": 20
+		}
+	},
+	"rewrites": [
+		{ "source": "/meteogram.png", "destination": "/api/meteogram" },
+		{
+			"source": "/meteogram/:coords([^/]+)\\.png",
+			"destination": "/api/meteogram?coords=:coords"
+		},
+		{ "source": "/meteogram/:coords([^/]+)", "destination": "/index.html" },
+		{ "source": "/meteogramy", "destination": "/index.html" }
+	]
 }

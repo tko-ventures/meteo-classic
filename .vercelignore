@@ -1,2 +1,6 @@
-test
 node_modules
+tests
+.github
+.nvmrc
+*.config.ts
+.oxlintrc.json
